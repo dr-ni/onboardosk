@@ -1,0 +1,8 @@
+# List of source files which might contain translatable
+# strings but should be skipped.
+attic
+
+src/gtest/googletest/include/gtest/internal/gtest-filepath.h
+src/gtest/googletest/src/gtest.cc
+
+

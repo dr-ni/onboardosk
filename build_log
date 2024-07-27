@@ -1,0 +1,12 @@
+make --silent all-recursive
+Making all in src
+Making all in libcommon
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I../.. -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/aarch64-linux-gnu/dbus-1.0/include -I/usr/include/glib-2.0 -I/usr/lib/aarch64-linux-gnu/glib-2.0/include -D_REENTRANT -I/usr/include/glib-2.0 -I/usr/lib/aarch64-linux-gnu/glib-2.0/include -pthread -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/aarch64-linux-gnu/glib-2.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/aarch64-linux-gnu -I/usr/include/gio-unix-2.0 -I/usr/include/atk-1.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/aarch64-linux-gnu/dbus-1.0/include -pthread -I/usr/include/hunspell -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/aarch64-linux-gnu/glib-2.0/include -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -pthread -I/usr/include/librsvg-2.0 -I/usr/include/glib-2.0 -I/usr/lib/aarch64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libpng16 -I/usr/include/aarch64-linux-gnu -pthread -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libxml2 -std=c++1z -Wall -Wextra -Werror=return-type -Werror=uninitialized -Werror=maybe-uninitialized -Werror=shadow -Wlogical-op -g -O2 -MT tools/ustringmain.lo -MD -MP -MF tools/.deps/ustringmain.Tpo -c tools/ustringmain.cpp  -fPIC -DPIC -o tools/.libs/ustringmain.o
+tools/ustringmain.cpp: In member function ‘UString UString::rstrip() const’:
+tools/ustringmain.cpp:423:17: error: ‘CharacterIterator’ has not been declared
+  423 |     while(cp != CharacterIterator::DONE)
+      |                 ^~~~~~~~~~~~~~~~~
+make[3]: *** [Makefile:611: tools/ustringmain.lo] Fehler 1
+make[2]: *** [Makefile:477: all-recursive] Fehler 1
+make[1]: *** [Makefile:554: all-recursive] Fehler 1
+make: *** [Makefile:486: all] Fehler 2

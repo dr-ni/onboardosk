@@ -1,0 +1,6 @@
+#ifndef INPUTEVENTSOURCEXINPUT_H
+#define INPUTEVENTSOURCEXINPUT_H
+
+#include "inputeventsource.h"
+
+#endif // INPUTEVENTSOURCEXINPUT_H

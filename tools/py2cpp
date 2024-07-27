@@ -1,0 +1,187 @@
+#!/usr/bin/env python3 
+
+import os
+import sys
+import re
+from optparse import OptionParser
+
+
+def main():
+    parser = OptionParser(usage="Usage: %prog [options] model_in model_out")
+    options, args = parser.parse_args()
+    
+    for fn in args:
+        with open(fn, mode="r", encoding="UTF-8") as f:
+            text = f.read()
+            newfn = os.path.splitext(fn)[0] + ".cpp"
+            print(fn, "->", newfn)
+            cpp_text = convert_py2c(text)
+            print(cpp_text)
+        
+def convert_py2c(str):
+
+    def convert_docstring(indent, docstr):
+        dlns = [indent + "// " + ln.strip() + "\n"
+                for ln in docstr.split("\n") if ln.strip()] \
+            if docstr else []
+        return "".join(dlns)
+                 
+    # class and its docstring
+    def repl(m):
+        a = m.groups()
+        indent = a[0]    
+        name = a[1]
+        params = a[2]
+        docstr = a[3]
+        
+        s = convert_docstring(indent, docstr)
+        s += indent + "class " + name
+        if params:
+            s += " : public " + params
+        s += "\n"
+        s += indent + "{"
+        return s
+    str = re.sub(r'([ \r]*)class\s+([\a-zA-Z_][a-zA-Z_0-9]*)\s*'
+                '\(([a-zA-Z_0-9, ]*)\):'
+                '(?:\s*"""([^"]*)""")?',
+                 repl, str)
+
+    # function and its docstring
+    def repl(m):
+        a = m.groups()
+        indent = a[0]    
+        name = a[1]
+        params = a[2]
+        docstr = a[3]
+        
+        s = convert_docstring(indent, docstr)
+        s += indent + "void " + name + "(" + params + ")" + "\n"
+        s += indent + "{"
+        #s = r'\4\n\1void \2(\3)\n\1{'
+        return s
+    str = re.sub(r'([ \r]*)def\s+([\a-zA-Z_][a-zA-Z_0-9]*)\s*'
+                '\((?:self[,]?\s?)?([a-zA-Z_0-9, *=]*)\):'
+                '(?:\s*"""([^"]*)""")?',
+                 repl, str)
+
+    # other docstrings
+    def repl(m):
+        a = m.groups()
+        indent = a[0]    
+        docstr = a[1]        
+        return convert_docstring(indent, docstr)
+    str = re.sub(r'([ \r]*)(?:\s*"""([^"]*)""")',
+                 repl, str)
+              
+    # if
+    str = re.sub(r'\n([ \r]*)if\s*([^:]*):', 
+                 r'\n\1if (\2)\n\1{', str)
+    
+    # elif
+    str = re.sub(r'\n([ \r]*)elif\s*([^:]*):', 
+                 r'\n\1else\n\1if (\2)\n\1{', str)
+    
+    # else
+    str = re.sub(r'\n([ \r]*)else\s*(if.*)?:', 
+                 r'\n\1else \2\n\1{', str)
+    # while
+    str = re.sub(r'\n([ \r]*)while\s*([^:]*):', 
+                 r'\n\1while (\2)\n\1{', str)
+    
+    # for
+    str = re.sub(r'\n([ \r]*)for\s*(.*)\s*in\s*(.*):', 
+                 r'\n\1for (auto \2 : \3)\n\1{', str)
+    
+    # try
+    str = re.sub(r'\n([ \r]*)try\s*:', 
+                 r'\n\1try\n\1{', str)
+                 
+    
+     # boolean operators
+    lns = str.split("\n")
+    for i, ln in enumerate(lns):
+        if not ln.strip().startswith("//"):
+            ln = re.sub(r"(\(| )not ", r"\1!", ln)         
+            ln = re.sub(r" and ", r" && ", ln)            
+            ln = re.sub(r" or ", r" || ", ln) 
+        lns[i] = ln
+    str = "\n".join(lns)
+    
+    str = re.sub(r"_logger\.warning", r"LOG_WARNING", str)         
+    str = re.sub(r"_logger\.debug", r"LOG_DEBUG", str)
+    str = re.sub(r"_logger\.error", r"LOG_ERROR", str)
+    str = re.sub(r"_logger\.info", r"LOG_INFO", str)
+    str = re.sub(r"_logger\.atspi\s*\(", r"LOG_DEBUG(LogCategory::ATSPI, ", str)
+    str = re.sub(r"_logger\.event\s*\(", r"LOG_DEBUG(LogCategory::EVENT, ", str)
+    str = re.sub(r"#", "//", str)
+    
+    str = re.sub(r"self[.]", r"this->", str)
+    
+    str = re.sub(r"(?<![A-Za-z0-9])is_empty\(", r"empty(", str)
+    str = re.sub(r"\bTrue\b", r"true", str)    
+    str = re.sub(r"\bFalse\b", r"false", str)
+    
+    # add closing braces
+    def maybe_add_braces(brace_stack, ln, lns_out):
+        while brace_stack:
+            pos = brace_stack[-1]
+            prefix = ln[:pos+1]
+            #lns2.append(repr(ln))
+            #lns2.append(repr(prefix) + " " + repr(brace_stack))
+            if not prefix.strip():
+                break
+                
+            # insert before empty lines
+            for i in range(len(lns_out)-1, -1, -1):
+                if lns_out[i].strip():
+                    break
+            lns_out.insert(i+1, " "*pos + "}")
+            brace_stack.pop()
+     
+    lns = str.split("\n")
+    lns2 = []
+    brace_stack = []
+    for ln in lns:
+        if ln.strip() == "{":
+            pos = ln.find("{")
+            brace_stack.append(pos)
+        else:
+            maybe_add_braces(brace_stack, ln, lns2) 
+        lns2.append(ln)
+        
+    maybe_add_braces(brace_stack, "x", lns2)  # remaining braces at file end
+    str = "\n".join(lns2)
+     
+    
+    # add semicolons
+    def repl(m):
+        a = m.groups()
+        cont_line = a[0]    
+                
+        if not cont_line.strip():
+            return cont_line
+            
+        for prefix in ["//", "{", "}", "void ",
+                       "if ", "else", "for ", "while ", "try", "except", "class"]:
+            if cont_line.strip().startswith(prefix):
+                return cont_line 
+                
+        for postfix in ["+", "-", "*", "/", ",", "[", "{", "("]:
+            if cont_line.endswith(postfix):
+                return cont_line
+                
+        comment_match = re.search("\s*//.*$", cont_line)
+        if comment_match:
+            pos = comment_match.start()
+            return cont_line[:pos] + ";" + cont_line[pos:]
+                
+        return cont_line + ";"
+        
+    str = re.sub(r"((?:\n.*\\)*\n.*)$", repl, str, flags=re.MULTILINE)
+    
+    
+    return str
+               
+if __name__ == '__main__':
+    main()
+

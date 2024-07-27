@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+cd po
+intltool-update --maintain
+cd ..
+

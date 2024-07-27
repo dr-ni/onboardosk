@@ -1,0 +1,1 @@
+#include "clickgenerator.h"

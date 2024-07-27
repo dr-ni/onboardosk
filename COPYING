@@ -1,0 +1,17 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Onboard
+Upstream-Contact: https://launchpad.net/~onboard/+contactuser
+Source: https://launchpad.net/onboard
+
+Files: *
+Copyright: 2017, marmuta <marmvta@gmail.com>
+License: GPL-3+
+
+Files: emojione/*
+Copyright: Emoji provided free by http://emojione.com
+License: CC-BY 4.0
+
+License: GPL-3+
+Comment: The license text is available in COPYING.GPL3
+
+

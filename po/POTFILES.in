@@ -1,0 +1,13 @@
+# List of source files that contain translatable strings.
+# Find files to add here with tools/list_missing_translatable_files.
+
+# data/onboard-autostart.desktop.in
+# data/onboard-settings.desktop.in
+# data/onboard.desktop.in
+# settings.ui
+# settings_docking_dialog.ui
+# settings_scanner_dialog.ui
+# settings_theme_dialog.ui
+
+src/libonboardosk/layoutloadersvg.cpp
+
