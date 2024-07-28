@@ -7,7 +7,13 @@ __pycache__
 build/
 unicode_data/
 po/onboard.pot
-
+config.log
+config.status
+data/org.onboardosk.gschema.valid
+po/POTFILES
+po/stamp-it
+project_config.h
+src/onboard-gtk/onboard_gtk
 autom4te.cache
 ar-lib
 aclocal.m4
@@ -40,7 +46,9 @@ stamp-h1
 *.files
 *.includes
 *.config
-
+*.o
+*.*~
+*~
 project_config.h.in
 intltool-extract.in
 intltool-merge.in
